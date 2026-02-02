@@ -6,6 +6,7 @@ import {
   RequestMessage,
   NotificationMessage,
   CompletionParams,
+  DidChangeTextDocumentParams,
 } from "vscode-languageserver";
 
 // export interface RequestMessage extends Message {
@@ -107,4 +108,9 @@ import {
 export type RequestType =
   | RequestMessage
   | NotificationMessage
-  | CompletionParams;
+  | CompletionParams
+  | DidChangeTextDocumentParams;
+
+export type NotificationType =
+  | NotificationMessage
+  | DidChangeTextDocumentParams;

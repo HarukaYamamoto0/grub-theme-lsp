@@ -2,13 +2,15 @@ import {
   CompletionItem,
   CompletionItemKind,
   CompletionList,
-  InitializeResult,
-  RequestMessage,
-  ResponseMessage,
+  CompletionParams,
 } from "vscode-languageserver";
 import { RequestType } from "../../types";
+import { documents } from "../../documents";
+import log from "../../log";
 
 export function completion(requestMessage: RequestType): CompletionList {
+  log.write({ completion: "ok", requestMessage });
+
   return {
     isIncomplete: false,
     items: [

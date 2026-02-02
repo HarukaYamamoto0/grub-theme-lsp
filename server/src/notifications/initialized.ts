@@ -1,6 +1,6 @@
-import { NotificationMessage } from "vscode-languageserver";
 import log from "../log";
+import { NotificationType } from "../types";
 
-export function initialized(notificationMessage: NotificationMessage): void {
+export function initialized(notificationMessage: NotificationType): void {
   log.write("Initialized");
 }
