@@ -4,12 +4,10 @@ import {
   CompletionList,
   CompletionParams,
 } from "vscode-languageserver";
-import { RequestType } from "../../types";
-import { documents } from "../../documents";
 import log from "../../log";
 
-export function completion(requestMessage: RequestType): CompletionList {
-  log.write({ completion: "ok", requestMessage });
+export function completion(params: CompletionParams): CompletionList {
+  log.write({ completion: "ok", params });
 
   return {
     isIncomplete: false,
@@ -19,11 +17,11 @@ export function completion(requestMessage: RequestType): CompletionList {
         detail: "GRUB theme property",
         kind: CompletionItemKind.Property,
         documentation: "Text displayed as title",
-      } as CompletionItem,
+      },
       {
         label: "desktop-image",
         kind: CompletionItemKind.Property,
-      } as CompletionItem,
+      },
       {
         label: "font",
         kind: CompletionItemKind.Property,

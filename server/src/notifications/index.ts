@@ -1,12 +1,10 @@
 import { initialized } from "./initialized";
 import { didChange } from "./didChange";
-import { NotificationType } from "../types";
-
-export type NotificationHandler = (
-  notificationMessage: NotificationType,
-) => void;
+import { didOpen } from "./didOpen";
+import { NotificationHandler } from "../types";
 
 export const notificationLookup: Record<string, NotificationHandler> = {
   initialized,
   "textDocument/didChange": didChange,
+  "textDocument/didOpen": didOpen,
 };

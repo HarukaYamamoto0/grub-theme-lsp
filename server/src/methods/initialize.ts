@@ -1,7 +1,6 @@
-import type { InitializeResult, RequestMessage } from "vscode-languageserver";
-import { RequestType } from "../types";
+import type { InitializeResult, InitializeParams } from "vscode-languageserver";
 
-export function initialize(requestMessage: RequestType): InitializeResult {
+export function initialize(params: InitializeParams): InitializeResult {
   return {
     capabilities: {
       completionProvider: {},
@@ -11,5 +10,5 @@ export function initialize(requestMessage: RequestType): InitializeResult {
       name: "grub-theme-lsp",
       version: "0.0.1",
     },
-  } as InitializeResult;
+  };
 }

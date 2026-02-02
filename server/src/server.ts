@@ -1,62 +1,53 @@
-import {
-  CompletionParams,
-  NotificationMessage,
-  RequestMessage,
-  ResponseError,
-  ResponseMessage,
-} from "vscode-languageserver";
-import log from "./log";
+import { NotificationMessage, RequestMessage, ResponseError, LSPErrorCodes } from "vscode-languageserver";
 import { methodLookup } from "./methods";
 import { notificationLookup } from "./notifications";
-import { RequestType } from "./types";
+import { MessageReader } from "./messageReader";
+import { MessageWriter } from "./messageWriter";
+import log from "./log";
 
-let buffer = "";
-
-process.stdin.on("data", (data: Buffer) => {
-  buffer += data;
-
-  while (true) {
-    const lengthMatch = buffer.match(/Content-Length: (\d+)\r\n/);
-    if (!lengthMatch) break;
-
-    const contentLength = parseInt(lengthMatch[1], 10);
-    const messageStart = buffer.indexOf("\r\n\r\n") + 4;
-
-    if (buffer.length < messageStart + contentLength) break;
-
-    const rawMessage = buffer.slice(messageStart, messageStart + contentLength);
-    const requestMessage: RequestType = JSON.parse(rawMessage);
-
-    log.write(rawMessage);
-
-    if ("id" in requestMessage) {
-      const method = methodLookup[requestMessage.method];
-      if (method) respond(requestMessage.id, method(requestMessage));
+const writer = new MessageWriter();
+const reader = new MessageReader(async (message) => {
+  if ("id" in message) {
+    const request = message as RequestMessage;
+    const handler = methodLookup[request.method];
+    if (handler) {
+      try {
+        const result = await handler(request.params);
+        writer.respond(request.id, result);
+      } catch (error) {
+        log.write(error);
+        if (error instanceof ResponseError) {
+          writer.respond(request.id, null, error);
+        } else {
+          writer.respond(
+            request.id,
+            null,
+            new ResponseError(
+              LSPErrorCodes.RequestFailed,
+              error instanceof Error ? error.message : String(error),
+            ),
+          );
+        }
+      }
     } else {
-      const notificationMessage = requestMessage as NotificationMessage;
-      const method = notificationLookup[notificationMessage.method];
-      if (method) method(notificationMessage);
+      writer.respond(
+        request.id,
+        null,
+        new ResponseError(
+          LSPErrorCodes.RequestFailed,
+          `Method not found: ${request.method}`,
+        ),
+      );
     }
-
-    buffer = buffer.slice(messageStart + contentLength);
+  } else {
+    const notification = message as NotificationMessage;
+    const handler = notificationLookup[notification.method];
+    if (handler) {
+      handler(notification.params);
+    }
   }
 });
 
-function respond(
-  id: string | number | null,
-  result?: string | number | boolean | object | any[] | null | undefined,
-  error?: ResponseError<any> | undefined,
-) {
-  const responseMessageAsString = JSON.stringify({
-    id,
-    result,
-    error,
-    jsonrpc: "2.0",
-  } as ResponseMessage);
-
-  const messageLength = Buffer.byteLength(responseMessageAsString, "utf-8");
-  const header = `Content-Length: ${messageLength}\r\n\r\n`;
-
-  log.write(header + responseMessageAsString);
-  process.stdout.write(header + responseMessageAsString);
-}
+process.stdin.on("data", (data: Buffer) => {
+  reader.append(data);
+});

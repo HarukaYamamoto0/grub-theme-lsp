@@ -1,10 +1,8 @@
 import { initialize } from "./initialize";
 import { completion } from "./textDocument/completion";
-import { RequestType } from "../types";
+import { RequestHandler } from "../types";
 
-export type RequestMethod = (requestMessage: RequestType) => object;
-
-export const methodLookup: Record<string, RequestMethod> = {
+export const methodLookup: Record<string, RequestHandler> = {
   initialize,
   "textDocument/completion": completion,
 };
