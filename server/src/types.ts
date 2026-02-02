@@ -2,6 +2,12 @@
 //   jsonrpc: string;
 // }
 
+import {
+  RequestMessage,
+  NotificationMessage,
+  CompletionParams,
+} from "vscode-languageserver";
+
 // export interface RequestMessage extends Message {
 //   /**
 //    * The request id.
@@ -97,3 +103,8 @@
 //  * 0 <= d <= 1.
 //  */
 // export type decimal = number;
+
+export type RequestType =
+  | RequestMessage
+  | NotificationMessage
+  | CompletionParams;

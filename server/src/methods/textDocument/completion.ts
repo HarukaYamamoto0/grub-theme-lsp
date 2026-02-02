@@ -6,8 +6,9 @@ import {
   RequestMessage,
   ResponseMessage,
 } from "vscode-languageserver";
+import { RequestType } from "../../types";
 
-export function completion(requestMessage: RequestMessage): CompletionList {
+export function completion(requestMessage: RequestType): CompletionList {
   return {
     isIncomplete: false,
     items: [

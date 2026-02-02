@@ -1,6 +1,7 @@
 import type { InitializeResult, RequestMessage } from "vscode-languageserver";
+import { RequestType } from "../types";
 
-export function initialize(requestMessage: RequestMessage): InitializeResult {
+export function initialize(requestMessage: RequestType): InitializeResult {
   return {
     capabilities: { completionProvider: {} },
     serverInfo: {

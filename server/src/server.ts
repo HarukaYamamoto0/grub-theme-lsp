@@ -8,6 +8,7 @@ import {
 import log from "./log";
 import { methodLookup } from "./methods";
 import { notificationLookup } from "./notifications";
+import { RequestType } from "./types";
 
 let buffer = "";
 
@@ -24,8 +25,7 @@ process.stdin.on("data", (data: Buffer) => {
     if (buffer.length < messageStart + contentLength) break;
 
     const rawMessage = buffer.slice(messageStart, messageStart + contentLength);
-    const requestMessage: RequestMessage | NotificationMessage =
-      JSON.parse(rawMessage);
+    const requestMessage: RequestType = JSON.parse(rawMessage);
 
     log.write(rawMessage);
 
