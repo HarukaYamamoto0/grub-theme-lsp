@@ -1,40 +1,62 @@
 import {
-  createConnection,
-  TextDocuments,
-  ProposedFeatures,
-  InitializeParams,
-  TextDocumentSyncKind,
-  InitializeResult,
-} from "vscode-languageserver/node";
+  CompletionParams,
+  NotificationMessage,
+  RequestMessage,
+  ResponseError,
+  ResponseMessage,
+} from "vscode-languageserver";
+import log from "./log";
+import { methodLookup } from "./methods";
+import { notificationLookup } from "./notifications";
 
-import { TextDocument } from "vscode-languageserver-textdocument";
+let buffer = "";
 
-// Create a connection for the server, using Node's IPC as a transport.
-// Also include all preview / proposed LSP features.
-const connection = createConnection(ProposedFeatures.all);
+process.stdin.on("data", (data: Buffer) => {
+  buffer += data;
 
-// Create a simple text document manager.
-const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+  while (true) {
+    const lengthMatch = buffer.match(/Content-Length: (\d+)\r\n/);
+    if (!lengthMatch) break;
 
-connection.onInitialize((params: InitializeParams) => {
-  const result: InitializeResult = {
-    capabilities: {
-      textDocumentSync: TextDocumentSyncKind.Incremental,
-    },
-  };
+    const contentLength = parseInt(lengthMatch[1], 10);
+    const messageStart = buffer.indexOf("\r\n\r\n") + 4;
 
-  return result;
+    if (buffer.length < messageStart + contentLength) break;
+
+    const rawMessage = buffer.slice(messageStart, messageStart + contentLength);
+    const requestMessage: RequestMessage | NotificationMessage =
+      JSON.parse(rawMessage);
+
+    log.write(rawMessage);
+
+    if ("id" in requestMessage) {
+      const method = methodLookup[requestMessage.method];
+      if (method) respond(requestMessage.id, method(requestMessage));
+    } else {
+      const notificationMessage = requestMessage as NotificationMessage;
+      const method = notificationLookup[notificationMessage.method];
+      if (method) method(notificationMessage);
+    }
+
+    buffer = buffer.slice(messageStart + contentLength);
+  }
 });
 
-documents.onDidChangeContent((change) => {
-  connection.window.showInformationMessage(
-    "onDidChangeContent: " + change.document.uri
-  );
-});
+function respond(
+  id: string | number | null,
+  result?: string | number | boolean | object | any[] | null | undefined,
+  error?: ResponseError<any> | undefined,
+) {
+  const responseMessageAsString = JSON.stringify({
+    id,
+    result,
+    error,
+    jsonrpc: "2.0",
+  } as ResponseMessage);
 
-// Make the text document manager listen on the connection
-// for open, change and close text document events
-documents.listen(connection);
+  const messageLength = Buffer.byteLength(responseMessageAsString, "utf-8");
+  const header = `Content-Length: ${messageLength}\r\n\r\n`;
 
-// Listen on the connection
-connection.listen();
+  log.write(header + responseMessageAsString);
+  process.stdout.write(header + responseMessageAsString);
+}

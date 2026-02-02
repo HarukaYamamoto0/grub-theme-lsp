@@ -13,35 +13,35 @@ let client: LanguageClient;
 export function activate(context: ExtensionContext) {
   // The server is implemented in node
   const serverModule = context.asAbsolutePath(
-    path.join("server", "out", "server.js")
+    path.join("server", "out", "server.js"),
   );
 
   // If the extension is launched in debug mode then the debug server options are used
   // Otherwise the run options are used
   const serverOptions: ServerOptions = {
-    run: { module: serverModule, transport: TransportKind.ipc },
+    run: { module: serverModule, transport: TransportKind.stdio },
     debug: {
       module: serverModule,
-      transport: TransportKind.ipc,
+      transport: TransportKind.stdio,
     },
   };
 
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
     // Register the server for all documents by default
-    documentSelector: [{ scheme: "file", language: "*" }],
+    documentSelector: [{ scheme: "file", language: "grub-theme" }],
     synchronize: {
       // Notify the server about file changes to '.clientrc files contained in the workspace
-      fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
+      fileEvents: workspace.createFileSystemWatcher("**/theme.txt"),
     },
   };
 
   // Create the language client and start the client.
   client = new LanguageClient(
-    "REPLACE_ME language-server-id",
-    "REPLACE_ME language server name",
+    "grub-theme",
+    "Grub Theme Lsp",
     serverOptions,
-    clientOptions
+    clientOptions,
   );
 
   // Start the client. This will also launch the server

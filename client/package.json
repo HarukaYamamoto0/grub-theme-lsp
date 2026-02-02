@@ -1,5 +1,5 @@
 {
-  "name": "REPLACE_ME",
+  "name": "grub-theme-lsp-vscode-extension",
   "description": "REPLACE_ME",
   "author": "REPLACE_ME",
   "license": "MIT",
@@ -10,12 +10,12 @@
     "url": "REPLACE_ME"
   },
   "engines": {
-    "vscode": "^1.75.0"
+    "vscode": "1.108.2"
   },
   "dependencies": {
-    "vscode-languageclient": "^8.1.0"
+    "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {
-    "@types/vscode": "^1.81.0"
+    "@types/vscode": "^1.108.1"
   }
 }
