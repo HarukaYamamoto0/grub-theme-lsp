@@ -1,10 +1,10 @@
-import type { InitializeResult, InitializeParams } from "vscode-languageserver";
+import type { InitializeResult, RequestMessage } from "vscode-languageserver";
 
-export function initialize(params: InitializeParams): InitializeResult {
+export function initialize(_message: RequestMessage): InitializeResult {
   return {
     capabilities: {
       completionProvider: {},
-      textDocumentSync: { change: 1, openClose: true },
+      textDocumentSync: { openClose: true, change: 1 },
     },
     serverInfo: {
       name: "grub-theme-lsp",

@@ -1,4 +1,9 @@
-import { NotificationMessage, RequestMessage, ResponseError, LSPErrorCodes } from "vscode-languageserver";
+import {
+  NotificationMessage,
+  RequestMessage,
+  ResponseError,
+  LSPErrorCodes,
+} from "vscode-languageserver";
 import { methodLookup } from "./methods";
 import { notificationLookup } from "./notifications";
 import { MessageReader } from "./messageReader";
@@ -12,7 +17,7 @@ const reader = new MessageReader(async (message) => {
     const handler = methodLookup[request.method];
     if (handler) {
       try {
-        const result = await handler(request.params);
+        const result = await handler(request);
         writer.respond(request.id, result);
       } catch (error) {
         log.write(error);
@@ -40,10 +45,10 @@ const reader = new MessageReader(async (message) => {
       );
     }
   } else {
-    const notification = message as NotificationMessage;
-    const handler = notificationLookup[notification.method];
+    const notificationMessage = message as NotificationMessage;
+    const handler = notificationLookup[notificationMessage.method];
     if (handler) {
-      handler(notification.params);
+      handler(notificationMessage);
     }
   }
 });

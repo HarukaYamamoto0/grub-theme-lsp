@@ -1,8 +1,14 @@
-import { DidOpenTextDocumentParams } from "vscode-languageserver";
+import {
+  DidOpenTextDocumentParams,
+  NotificationMessage,
+} from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { documents } from "../documents";
+import log from "../log";
 
-export function didOpen(params: DidOpenTextDocumentParams): void {
+export function didOpen(notificationMessage: NotificationMessage): void {
+  const params = notificationMessage.params as DidOpenTextDocumentParams;
+
   const document = TextDocument.create(
     params.textDocument.uri,
     params.textDocument.languageId,
